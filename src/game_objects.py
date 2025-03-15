@@ -47,28 +47,10 @@ class Player(GameObject):
         if self.velocity_y > 10:  # Cap falling speed
             self.velocity_y = 10
 
-        # Update position
+        # Update position (no boundary checks here)
         self.x += self.velocity_x
         self.y += self.velocity_y
         self.rect.topleft = (self.x, self.y)
-
-        # Temporary screen boundaries (will be replaced by collision later)
-        if self.y >= SCREEN_HEIGHT - self.height:
-            self.y = SCREEN_HEIGHT - self.height
-            self.velocity_y = 0
-            self.is_on_ground = True
-        elif self.y < 0:
-            self.y = 0
-            self.velocity_y = 0
-        if self.x < 0:
-            self.x = 0
-        elif self.x > SCREEN_WIDTH - self.width:
-            self.x = SCREEN_WIDTH - self.width
-
-    def jump(self):
-        if self.is_on_ground:
-            self.velocity_y = self.jump_power
-            self.is_on_ground = False
 
 class Platform(GameObject):
     def __init__(self, x, y, width, height):
