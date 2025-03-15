@@ -1,7 +1,7 @@
 # src/game.py
 import pygame
-from game_objects import Player, Platform
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS
+from src.game_objects import Player, Platform
+from src.constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS
 
 class GameManager:
     def __init__(self):
@@ -22,34 +22,35 @@ class GameManager:
             if event.type == pygame.QUIT:
                 self.running = False
 
+    # src/game.py (only showing check_collisions method)
     def check_collisions(self):
         for platform in self.platforms:
             if self.player.rect.colliderect(platform.rect):
-                # Calculate overlaps to determine collision direction
                 overlap_left = (self.player.x + self.player.width) - platform.x
                 overlap_right = (platform.x + platform.width) - self.player.x
                 overlap_top = (self.player.y + self.player.height) - platform.y
                 overlap_bottom = (platform.y + platform.height) - self.player.y
                 
-                # Find the smallest overlap to resolve the collision
                 min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
 
-                # Resolve based on smallest overlap and movement direction
-                if min_overlap == overlap_top and self.player.velocity_y > 0:  # Landing on top
+                if min_overlap == overlap_top and self.player.velocity_y > 0:
                     self.player.y = platform.y - self.player.height
                     self.player.velocity_y = 0
                     self.player.is_on_ground = True
-                elif min_overlap == overlap_bottom and self.player.velocity_y < 0:  # Hitting bottom
+                elif min_overlap == overlap_bottom and self.player.velocity_y < 0:
                     self.player.y = platform.y + platform.height
                     self.player.velocity_y = 0
-                elif min_overlap == overlap_left and self.player.velocity_x > 0:  # Hitting left side
+                elif min_overlap == overlap_left and self.player.velocity_x > 0:
                     self.player.x = platform.x - self.player.width
-                    self.player.velocity_x = 0
-                elif min_overlap == overlap_right and self.player.velocity_x < 0:  # Hitting right side
+                    # Only stop if still moving right
+                    if self.player.velocity_x > 0:
+                        self.player.velocity_x = 0
+                elif min_overlap == overlap_right and self.player.velocity_x < 0:
                     self.player.x = platform.x + platform.width
-                    self.player.velocity_x = 0
+                    # Only stop if still moving left
+                    if self.player.velocity_x < 0:
+                        self.player.velocity_x = 0
                 
-                # Update rect position after resolution
                 self.player.rect.topleft = (self.player.x, self.player.y)
 
     def update(self):
