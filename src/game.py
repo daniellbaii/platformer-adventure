@@ -1,7 +1,7 @@
 # src/game.py
 import pygame
-from game_objects import Player, Platform
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS
+from .game_objects import Player, Platform
+from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS
 
 class GameManager:
     def __init__(self):

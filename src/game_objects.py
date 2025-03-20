@@ -1,6 +1,6 @@
 # src/game_objects.py
 import pygame
-from constants import GRAVITY, PLAYER_JUMP_POWER, PLAYER_SPEED, SCREEN_WIDTH, SCREEN_HEIGHT
+from .constants import GRAVITY, PLAYER_JUMP_POWER, PLAYER_SPEED, SCREEN_WIDTH, SCREEN_HEIGHT
 
 class GameObject:
     def __init__(self, x, y, width, height):

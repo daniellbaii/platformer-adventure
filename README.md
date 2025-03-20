@@ -4,7 +4,7 @@ A side-scrolling platformer game developed using Python and Pygame for the Compu
 ## Setup
 1. Clone the repository: `git clone https://github.com/daniellbaii/platformer-adventure.git`
 2. Install dependencies: `pip install -r requirements.txt`
-3. Run the game: `python3 src/game.py`
+3. Run the game: `python3 -m src.game`
 
 ## Project Structure
 - `assets/`: Game assets (images, sounds).
