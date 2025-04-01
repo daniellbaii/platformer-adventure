@@ -2,14 +2,16 @@
 import unittest
 import unittest.mock
 import pygame
-from src.game_objects import Player, Platform
+from src.game_objects import Player, Platform, Enemy, Coin
 from src.constants import PLAYER_JUMP_POWER, GRAVITY, PLAYER_SPEED
 
 class TestGameObjects(unittest.TestCase):
     def setUp(self):
         pygame.init()
-        self.player = Player(250, 300, 40, 40)  # x overlaps platform
+        self.player = Player(250, 300, 40, 40)
         self.platform = Platform(200, 400, 200, 20)
+        self.enemy = Enemy(250, 380, 30, 20, self.platform)
+        self.coin = Coin(300, 360, 20, 20)
 
     def test_player_jump(self):
         self.player.is_on_ground = True
@@ -32,24 +34,38 @@ class TestGameObjects(unittest.TestCase):
             self.assertEqual(self.player.x, initial_x + PLAYER_SPEED)
 
     def test_collision_landing(self):
-        self.player.y = 350  # Above platform
-        self.player.velocity_y = 5  # Falling
+        self.player.y = 350
+        self.player.velocity_y = 5
         self.player.rect.topleft = (self.player.x, self.player.y)
-        
-        # Simulate falling until collision (mimicking game loop)
-        for _ in range(10):  # Enough frames to reach platform
+        for _ in range(10):
             self.player.update()
             if self.player.rect.colliderect(self.platform.rect):
-                if self.player.velocity_y > 0:  # Falling onto platform
+                if self.player.velocity_y > 0:
                     self.player.y = self.platform.y - self.player.height
                     self.player.velocity_y = 0
                     self.player.is_on_ground = True
                 self.player.rect.topleft = (self.player.x, self.player.y)
                 break
-        
-        self.assertEqual(self.player.y, 360)  # 400 - 40
+        self.assertEqual(self.player.y, 360)
         self.assertEqual(self.player.velocity_y, 0)
         self.assertTrue(self.player.is_on_ground)
+
+    def test_enemy_movement(self):
+        initial_x = self.enemy.x
+        self.enemy.update()
+        self.assertEqual(self.enemy.x, initial_x + 2)
+        self.enemy.x = self.platform.x + self.platform.width
+        self.enemy.update()
+        self.assertEqual(self.enemy.velocity_x, -2)
+
+    def test_coin_collection(self):
+        self.player.rect.topleft = (300, 360)
+        self.assertFalse(self.coin.collected)
+        if self.player.rect.colliderect(self.coin.rect):
+            self.coin.collected = True
+            self.player.score += 1
+        self.assertTrue(self.coin.collected)
+        self.assertEqual(self.player.score, 1)
 
 if __name__ == "__main__":
     unittest.main()
