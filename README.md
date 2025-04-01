@@ -57,6 +57,12 @@ This update enhances the initial prototype (Deliverable 3) with additional gamep
 - **Command**: `python3 -m unittest tests.test_game_objects -v`
 - **Results**: All tests pass, verifying core and new functionality.
 
+- **Screenshots**:
+  - `docs/coin_initial.png`: Player and other game objects in their inital setup.
+  - `docs/coin_collected.png`: Player immediately after colliding with the coin, score increases to 1.
+  - `docs/enemy_initial.png`: Player on elevated platform before colliding with enemy.
+  - `docs/gameover.png`: Game Over screen that displays both the score and game over UIs.
+
 ### Debugging Evidence
 - **Bug**: Enemies moved beyond platform edges.
 - **Fix**: Added boundary check in `Enemy.update()` to reverse `velocity_x` at platform limits.

@@ -10,7 +10,7 @@ class GameObject:
         self.height = height
         self.rect = pygame.Rect(x, y, width, height)
         self.image = pygame.Surface((width, height))
-        self.image.fill(color)  # Set color for rectangle
+        self.image.fill(color)
 
     def draw(self, screen):
         screen.blit(self.image, (self.x, self.y))
@@ -47,6 +47,17 @@ class Player(GameObject):
 
         self.x += self.velocity_x
         self.y += self.velocity_y
+
+        # Prevent walking off edges
+        if self.x < 0:
+            self.x = 0
+        elif self.x + self.width > SCREEN_WIDTH:
+            self.x = SCREEN_WIDTH - self.width
+        if self.y < 0:
+            self.y = 0
+        elif self.y + self.height > SCREEN_HEIGHT:
+            self.y = SCREEN_HEIGHT - self.height
+
         self.rect.topleft = (self.x, self.y)
 
 class Platform(GameObject):
@@ -56,7 +67,7 @@ class Platform(GameObject):
 class Enemy(GameObject):
     def __init__(self, x, y, width, height, platform):
         super().__init__(x, y, width, height, color=(255, 0, 0))  # Red
-        self.velocity_x = 2  # Moves right initially
+        self.velocity_x = 2
         self.platform = platform
 
     def update(self):
