@@ -92,6 +92,7 @@ class Level:
         self.platforms = []
         self.enemies = []
         self.coins = []
+        self.initial_coins = []  # Store initial coin configurations
         self.background_color = BLACK
 
     def get_objects(self):
@@ -100,8 +101,7 @@ class Level:
 
     def reset(self):
         """Reset objects to initial state."""
-        for coin in self.coins:
-            coin.collected = False
+        self.coins = [Coin(coin.x, coin.y, coin.width, coin.height) for coin in self.initial_coins]
 
 class LevelOne(Level):
     """First level configuration."""
@@ -116,6 +116,7 @@ class LevelOne(Level):
             Coin(500, 460, 20, 20),
             Coin(300, SCREEN_HEIGHT - 40, 20, 20)
         ]
+        self.initial_coins = self.coins.copy()  # Store initial coins
         self.background_color = BLACK
 
 class LevelTwo(Level):
@@ -135,4 +136,5 @@ class LevelTwo(Level):
             Coin(600, 380, 20, 20),  # Above higher platform
             Coin(325, 460, 20, 20)  # Above lower platform
         ]
+        self.initial_coins = self.coins.copy()  # Store initial coins
         self.background_color = DARK_BLUE

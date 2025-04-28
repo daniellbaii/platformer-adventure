@@ -1,7 +1,7 @@
 # src/game.py
 import pygame
 from .game_objects import Player, LevelOne, LevelTwo
-from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, RED
+from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, RED, BLACK, DARK_BLUE
 
 class GameManager:
     """Manages the game loop, states, and objects."""
@@ -15,21 +15,22 @@ class GameManager:
         pygame.display.set_caption("Platformer Adventure")
         self.clock = pygame.time.Clock()
         self.running = True
-        self.state = "START"  # START, PLAYING, GAME_OVER
+        self.state = "START"  # START, PLAYING, GAME_OVER, FINISHED
         self.levels = [LevelOne(), LevelTwo()]
         self.current_level_index = 0
-        self.player = Player(100, 450, 40, 40)
+        self.player = Player(100, SCREEN_HEIGHT - 20 - 40, 40, 40)  # Start on ground
         self.font = pygame.font.Font(None, 36)
 
     def reset_level(self):
-        """Reset player and current level."""
+        """Reset player and all levels."""
         self.player.x = 100
-        self.player.y = 450
+        self.player.y = SCREEN_HEIGHT - 20 - 40  # Start on ground
         self.player.velocity_x = 0
         self.player.velocity_y = 0
-        self.player.is_on_ground = False
+        self.player.is_on_ground = True
         self.player.score = 0
-        self.levels[self.current_level_index].reset()
+        for level in self.levels:
+            level.reset()  # Reset coins and state in all levels
 
     def handle_events(self):
         """Process user input and window events."""
@@ -41,6 +42,9 @@ class GameManager:
                     self.state = "PLAYING"
                     self.reset_level()
                 elif self.state == "GAME_OVER" and event.key == pygame.K_SPACE:
+                    self.state = "PLAYING"
+                    self.reset_level()
+                elif self.state == "FINISHED" and event.key == pygame.K_SPACE:
                     self.state = "PLAYING"
                     self.current_level_index = 0
                     self.reset_level()
@@ -80,13 +84,17 @@ class GameManager:
                 coin.collected = True
                 current_level.coins.remove(coin)
 
-        # Transition to next level if all coins collected
-        if not current_level.coins:
+        # Transition to next level or finish
+        if self.state == "PLAYING" and not current_level.coins:
             if self.current_level_index + 1 < len(self.levels):
                 self.current_level_index += 1
-                self.reset_level()
+                self.player.x = 100
+                self.player.y = SCREEN_HEIGHT - 20 - 40
+                self.player.velocity_x = 0
+                self.player.velocity_y = 0
+                self.player.is_on_ground = True
             else:
-                self.state = "GAME_OVER"  # End game if no more levels
+                self.state = "FINISHED"
 
     def update(self):
         """Update game objects if in PLAYING state."""
@@ -128,6 +136,14 @@ class GameManager:
             self.screen.blit(game_over_text, (SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2 - 50))
             self.screen.blit(score_text, (SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2))
             self.screen.blit(restart_text, (SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 50))
+
+        elif self.state == "FINISHED":
+            win_text = self.font.render("You Win!", True, WHITE)
+            score_text = self.font.render(f"Final Coins: {self.player.score}", True, WHITE)
+            replay_text = self.font.render("Press SPACE to Replay", True, WHITE)
+            self.screen.blit(win_text, (SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2 - 50))
+            self.screen.blit(score_text, (SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2))
+            self.screen.blit(replay_text, (SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 50))
 
         pygame.display.flip()
 
