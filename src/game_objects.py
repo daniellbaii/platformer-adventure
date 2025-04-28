@@ -1,8 +1,9 @@
 # src/game_objects.py
 import pygame
-from .constants import GRAVITY, PLAYER_JUMP_POWER, PLAYER_SPEED, SCREEN_WIDTH, SCREEN_HEIGHT
+from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, PLAYER_JUMP_POWER, PLAYER_SPEED, BLACK, DARK_BLUE
 
 class GameObject:
+    """Base class for game objects with position and rendering."""
     def __init__(self, x, y, width, height, color=(255, 255, 255)):
         self.x = x
         self.y = y
@@ -19,6 +20,7 @@ class GameObject:
         pass
 
 class Player(GameObject):
+    """Player character with movement and jumping."""
     def __init__(self, x, y, width, height):
         super().__init__(x, y, width, height, color=(255, 255, 255))  # White
         self.velocity_x = 0
@@ -61,10 +63,12 @@ class Player(GameObject):
         self.rect.topleft = (self.x, self.y)
 
 class Platform(GameObject):
+    """Static platform for player to stand on."""
     def __init__(self, x, y, width, height):
         super().__init__(x, y, width, height, color=(255, 255, 255))  # White
 
 class Enemy(GameObject):
+    """Enemy that patrols a platform."""
     def __init__(self, x, y, width, height, platform):
         super().__init__(x, y, width, height, color=(255, 0, 0))  # Red
         self.velocity_x = 2
@@ -77,6 +81,58 @@ class Enemy(GameObject):
         self.rect.topleft = (self.x, self.y)
 
 class Coin(GameObject):
+    """Collectible coin that increases score."""
     def __init__(self, x, y, width, height):
         super().__init__(x, y, width, height, color=(255, 255, 0))  # Yellow
         self.collected = False
+
+class Level:
+    """Base class for managing level-specific objects."""
+    def __init__(self):
+        self.platforms = []
+        self.enemies = []
+        self.coins = []
+        self.background_color = BLACK
+
+    def get_objects(self):
+        """Return all objects for rendering and updating."""
+        return [self.platforms, self.enemies, self.coins]
+
+    def reset(self):
+        """Reset objects to initial state."""
+        for coin in self.coins:
+            coin.collected = False
+
+class LevelOne(Level):
+    """First level configuration."""
+    def __init__(self):
+        super().__init__()
+        self.platforms = [
+            Platform(0, SCREEN_HEIGHT - 20, SCREEN_WIDTH, 20),  # Ground
+            Platform(400, 500, 200, 20)  # Elevated
+        ]
+        self.enemies = [Enemy(450, 480, 30, 20, self.platforms[1])]
+        self.coins = [
+            Coin(500, 460, 20, 20),
+            Coin(300, SCREEN_HEIGHT - 40, 20, 20)
+        ]
+        self.background_color = BLACK
+
+class LevelTwo(Level):
+    """Second level with different layout."""
+    def __init__(self):
+        super().__init__()
+        self.platforms = [
+            Platform(0, SCREEN_HEIGHT - 20, SCREEN_WIDTH, 20),  # Ground
+            Platform(500, 420, 200, 20),  # Higher platform
+            Platform(250, 500, 150, 20)  # Lower platform
+        ]
+        self.enemies = [
+            Enemy(550, 400, 30, 20, self.platforms[1]),  # On higher platform
+            Enemy(300, 480, 30, 20, self.platforms[2])  # On lower platform
+        ]
+        self.coins = [
+            Coin(600, 380, 20, 20),  # Above higher platform
+            Coin(325, 460, 20, 20)  # Above lower platform
+        ]
+        self.background_color = DARK_BLUE
