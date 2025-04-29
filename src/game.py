@@ -18,19 +18,25 @@ class GameManager:
         self.state = "START"  # START, PLAYING, GAME_OVER, FINISHED
         self.levels = [LevelOne(), LevelTwo()]
         self.current_level_index = 0
-        self.player = Player(100, SCREEN_HEIGHT - 20 - 40, 40, 40)  # Start on ground
+        self.player = Player(100, SCREEN_HEIGHT - 60, 40, 40)  # Start on ground
         self.font = pygame.font.Font(None, 36)
+        self.total_coins = sum(len(level.coins) for level in self.levels)  # Total coins
+        self.level_coin_counts = [0] * len(self.levels)  # Coins collected per level
 
     def reset_level(self):
-        """Reset player and all levels."""
+        """Reset player and levels, handle coin counts based on state."""
         self.player.x = 100
-        self.player.y = SCREEN_HEIGHT - 20 - 40  # Start on ground
+        self.player.y = SCREEN_HEIGHT - 60  # Start on ground
         self.player.velocity_x = 0
         self.player.velocity_y = 0
         self.player.is_on_ground = True
-        self.player.score = 0
+        if self.state == "START" or self.state == "FINISHED":
+            self.level_coin_counts = [0] * len(self.levels)  # Reset all coins
+        if self.state == "GAME_OVER":
+            self.level_coin_counts[self.current_level_index] = 0  # Reset current level coins
+        self.player.score = sum(self.level_coin_counts)  # Update score
         for level in self.levels:
-            level.reset()  # Reset coins and state in all levels
+            level.reset()  # Reset coins in all levels
 
     def handle_events(self):
         """Process user input and window events."""
@@ -39,15 +45,15 @@ class GameManager:
                 self.running = False
             if event.type == pygame.KEYDOWN:
                 if self.state == "START" and event.key == pygame.K_SPACE:
-                    self.state = "PLAYING"
                     self.reset_level()
+                    self.state = "PLAYING"
                 elif self.state == "GAME_OVER" and event.key == pygame.K_SPACE:
+                    self.reset_level()  # Restart current level
                     self.state = "PLAYING"
-                    self.reset_level()
                 elif self.state == "FINISHED" and event.key == pygame.K_SPACE:
+                    self.reset_level()
                     self.state = "PLAYING"
                     self.current_level_index = 0
-                    self.reset_level()
 
     def check_collisions(self):
         """Handle collisions between player and level objects."""
@@ -80,7 +86,8 @@ class GameManager:
 
         for coin in current_level.coins[:]:
             if not coin.collected and self.player.rect.colliderect(coin.rect):
-                self.player.score += 1
+                self.level_coin_counts[self.current_level_index] += 1
+                self.player.score = sum(self.level_coin_counts)
                 coin.collected = True
                 current_level.coins.remove(coin)
 
@@ -124,14 +131,14 @@ class GameManager:
             for coin in current_level.coins:
                 if not coin.collected:
                     coin.draw(self.screen)
-            score_text = self.font.render(f"Coins Collected: {self.player.score}", True, WHITE)
+            score_text = self.font.render(f"Coins: {self.player.score}/{self.total_coins}", True, WHITE)
             level_text = self.font.render(f"Level {self.current_level_index + 1}", True, WHITE)
             self.screen.blit(score_text, (10, 10))
             self.screen.blit(level_text, (SCREEN_WIDTH - 100, 10))
 
         elif self.state == "GAME_OVER":
             game_over_text = self.font.render("Game Over", True, RED)
-            score_text = self.font.render(f"Final Coins: {self.player.score}", True, WHITE)
+            score_text = self.font.render(f"Total Coins: {self.player.score}/{self.total_coins}", True, WHITE)
             restart_text = self.font.render("Press SPACE to Restart", True, WHITE)
             self.screen.blit(game_over_text, (SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2 - 50))
             self.screen.blit(score_text, (SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2))
@@ -139,7 +146,7 @@ class GameManager:
 
         elif self.state == "FINISHED":
             win_text = self.font.render("You Win!", True, WHITE)
-            score_text = self.font.render(f"Final Coins: {self.player.score}", True, WHITE)
+            score_text = self.font.render(f"Total Coins: {self.player.score}/{self.total_coins}", True, WHITE)
             replay_text = self.font.render("Press SPACE to Replay", True, WHITE)
             self.screen.blit(win_text, (SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2 - 50))
             self.screen.blit(score_text, (SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2))
