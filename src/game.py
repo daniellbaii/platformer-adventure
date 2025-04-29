@@ -24,6 +24,8 @@ class GameManager:
         self.level_coin_counts = [0] * len(self.levels)  # Coins collected per level
         self.powerup_timer = 0  # Tracks power-up duration
         self.powerup_active = False
+        self.start_time = pygame.time.get_ticks()  # Start time for timer
+        self.final_time = 0  # Store final time when game is finished
 
     def reset_level(self):
         """Reset player and levels, handle coin counts based on state."""
@@ -39,6 +41,8 @@ class GameManager:
             self.level_coin_counts = [0] * len(self.levels)  # Reset all coins
         if self.state == "GAME_OVER":
             self.level_coin_counts[self.current_level_index] = 0  # Reset current level coins
+        if self.state == "FINISHED":
+            self.start_time = pygame.time.get_ticks()  # Reset timer for new game
         self.player.score = sum(self.level_coin_counts)  # Update score
         for level in self.levels:
             level.reset()  # Reset coins in all levels
@@ -52,6 +56,10 @@ class GameManager:
                 if self.state == "START" and event.key == pygame.K_SPACE:
                     self.reset_level()
                     self.state = "PLAYING"
+                elif self.state == "PLAYING" and event.key == pygame.K_r:
+                    self.level_coin_counts[self.current_level_index] = 0  # Reset current level coins
+                    self.player.score = sum(self.level_coin_counts)  # Update score
+                    self.reset_level()  # Restart current level
                 elif self.state == "GAME_OVER" and event.key == pygame.K_SPACE:
                     self.reset_level()  # Restart current level
                     self.state = "PLAYING"
@@ -123,6 +131,7 @@ class GameManager:
                 self.powerup_timer = 0
                 self.powerup_active = False
             else:
+                self.final_time = (pygame.time.get_ticks() - self.start_time) / 1000  # Store final time in seconds
                 self.state = "FINISHED"
 
     def update(self):
@@ -160,6 +169,13 @@ class GameManager:
             level_text = self.font.render(f"Level {self.current_level_index + 1}", True, WHITE)
             self.screen.blit(score_text, (10, 10))
             self.screen.blit(level_text, (SCREEN_WIDTH - 100, 10))
+            # Display timer
+            elapsed_time = (pygame.time.get_ticks() - self.start_time) / 1000  # Seconds with decimals
+            timer_text = self.font.render(f"Time: {elapsed_time:.2f}s", True, WHITE)
+            self.screen.blit(timer_text, (SCREEN_WIDTH // 2 - 50, 40))
+            # Display restart instruction
+            restart_text = self.font.render("Press R to Restart", True, WHITE)
+            self.screen.blit(restart_text, (SCREEN_WIDTH // 2 - 80, 10))
 
         elif self.state == "GAME_OVER":
             game_over_text = self.font.render("Game Over", True, RED)
@@ -175,7 +191,10 @@ class GameManager:
             replay_text = self.font.render("Press SPACE to Replay", True, WHITE)
             self.screen.blit(win_text, (SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2 - 50))
             self.screen.blit(score_text, (SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2))
-            self.screen.blit(replay_text, (SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 50))
+            # Display final time
+            timer_text = self.font.render(f"Time: {self.final_time:.2f}s", True, WHITE)
+            self.screen.blit(timer_text, (SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2 + 50))
+            self.screen.blit(replay_text, (SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 100))
 
         pygame.display.flip()
 
