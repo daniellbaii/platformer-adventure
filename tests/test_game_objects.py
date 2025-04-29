@@ -2,7 +2,7 @@
 import unittest
 import unittest.mock
 import pygame
-from src.game_objects import Player, Platform, Enemy, Coin
+from src.game_objects import Player, Platform, Enemy, FastEnemy, Coin, PowerUp
 from src.constants import PLAYER_JUMP_POWER, GRAVITY, PLAYER_SPEED
 
 class TestGameObjects(unittest.TestCase):
@@ -58,6 +58,12 @@ class TestGameObjects(unittest.TestCase):
         self.enemy.update()
         self.assertEqual(self.enemy.velocity_x, -2)
 
+    def test_fast_enemy_movement(self):
+        platform = Platform(200, 480, 200, 20)
+        enemy = FastEnemy(250, 460, 30, 20, platform)
+        enemy.update()
+        self.assertEqual(enemy.x, 254)  # Moves 4 pixels
+
     def test_coin_collection(self):
         self.player.rect.topleft = (300, 360)
         self.assertFalse(self.coin.collected)
@@ -66,6 +72,15 @@ class TestGameObjects(unittest.TestCase):
             self.player.score += 1
         self.assertTrue(self.coin.collected)
         self.assertEqual(self.player.score, 1)
+    
+    def test_powerup_collection(self):
+        player = Player(100, 100, 40, 40)
+        powerup = PowerUp(100, 100, 20, 20)
+        self.assertFalse(powerup.collected)
+        powerup.collected = True
+        player.jump_multiplier = 2
+        self.assertTrue(powerup.collected)
+        self.assertEqual(player.jump_multiplier, 2)
 
 if __name__ == "__main__":
     unittest.main()

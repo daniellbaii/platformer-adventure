@@ -1,7 +1,7 @@
 # src/game.py
 import pygame
 from .game_objects import Player, LevelOne, LevelTwo, LevelThree
-from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, RED
+from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, RED, POWERUP_DURATION
 
 class GameManager:
     """Manages the game loop, states, and objects."""
@@ -21,8 +21,9 @@ class GameManager:
         self.player = Player(100, SCREEN_HEIGHT - 60, 40, 40)  # Start on ground
         self.font = pygame.font.Font(None, 36)
         self.total_coins = sum(len(level.coins) for level in self.levels)  # Total coins
-        print(self.total_coins)
         self.level_coin_counts = [0] * len(self.levels)  # Coins collected per level
+        self.powerup_timer = 0  # Tracks power-up duration
+        self.powerup_active = False
 
     def reset_level(self):
         """Reset player and levels, handle coin counts based on state."""
@@ -31,6 +32,9 @@ class GameManager:
         self.player.velocity_x = 0
         self.player.velocity_y = 0
         self.player.is_on_ground = True
+        self.player.jump_multiplier = 1  # Reset jump boost
+        self.powerup_timer = 0
+        self.powerup_active = False
         if self.state == "START" or self.state == "FINISHED":
             self.level_coin_counts = [0] * len(self.levels)  # Reset all coins
         if self.state == "GAME_OVER":
@@ -91,6 +95,20 @@ class GameManager:
                 self.player.score = sum(self.level_coin_counts)
                 coin.collected = True
                 current_level.coins.remove(coin)
+        
+        for powerup in current_level.power_ups[:]:
+            if not powerup.collected and self.player.rect.colliderect(powerup.rect):
+                powerup.collected = True
+                current_level.power_ups.remove(powerup)
+                self.player.jump_multiplier = 1.5  # Double jump height
+                self.powerup_timer = pygame.time.get_ticks()
+                self.powerup_active = True
+
+        # Manage power-up timer
+        if self.powerup_active:
+            if pygame.time.get_ticks() - self.powerup_timer > POWERUP_DURATION:
+                self.player.jump_multiplier = 1
+                self.powerup_active = False
 
         # Transition to next level or finish
         if self.state == "PLAYING" and not current_level.coins:
@@ -101,6 +119,9 @@ class GameManager:
                 self.player.velocity_x = 0
                 self.player.velocity_y = 0
                 self.player.is_on_ground = True
+                self.player.jump_multiplier = 1
+                self.powerup_timer = 0
+                self.powerup_active = False
             else:
                 self.state = "FINISHED"
 
@@ -132,6 +153,9 @@ class GameManager:
             for coin in current_level.coins:
                 if not coin.collected:
                     coin.draw(self.screen)
+            for powerup in current_level.power_ups:
+                if not powerup.collected:
+                    powerup.draw(self.screen)
             score_text = self.font.render(f"Coins: {self.player.score}/{self.total_coins}", True, WHITE)
             level_text = self.font.render(f"Level {self.current_level_index + 1}", True, WHITE)
             self.screen.blit(score_text, (10, 10))

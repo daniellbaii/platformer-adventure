@@ -29,6 +29,7 @@ class Player(GameObject):
         self.gravity = GRAVITY
         self.is_on_ground = False
         self.score = 0
+        self.jump_multiplier = 1  # For jump boost power-ups
 
     def update(self):
         keys = pygame.key.get_pressed()
@@ -40,7 +41,7 @@ class Player(GameObject):
         self.velocity_x = dx
 
         if keys[pygame.K_UP] and self.is_on_ground:
-            self.velocity_y = self.jump_power
+            self.velocity_y = self.jump_power * self.jump_multiplier
             self.is_on_ground = False
 
         self.velocity_y += self.gravity
@@ -80,10 +81,22 @@ class Enemy(GameObject):
             self.velocity_x = -self.velocity_x
         self.rect.topleft = (self.x, self.y)
 
+class FastEnemy(Enemy):
+    """Faster enemy that patrols a platform."""
+    def __init__(self, x, y, width, height, platform):
+        super().__init__(x, y, width, height, platform)
+        self.velocity_x = 4  # Faster than Enemy
+
 class Coin(GameObject):
     """Collectible coin that increases score."""
     def __init__(self, x, y, width, height):
         super().__init__(x, y, width, height, color=(255, 255, 0))  # Yellow
+        self.collected = False
+
+class PowerUp(GameObject):
+    """Temporary jump boost power-up."""
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height, color=(0, 0, 255))  # Blue
         self.collected = False
 
 class Level:
@@ -92,16 +105,19 @@ class Level:
         self.platforms = []
         self.enemies = []
         self.coins = []
+        self.power_ups = []  # Store power-ups
         self.initial_coins = []  # Store initial coin configurations
+        self.initial_power_ups = []  # Store initial power-ups
         self.background_color = BLACK
 
     def get_objects(self):
         """Return all objects for rendering and updating."""
-        return [self.platforms, self.enemies, self.coins]
+        return [self.platforms, self.enemies, self.coins, self.power_ups]
 
     def reset(self):
         """Reset objects to initial state."""
         self.coins = [Coin(coin.x, coin.y, coin.width, coin.height) for coin in self.initial_coins]
+        self.power_ups = [PowerUp(pu.x, pu.y, pu.width, pu.height) for pu in self.initial_power_ups]
 
 class LevelOne(Level):
     """First level configuration."""
@@ -140,24 +156,28 @@ class LevelTwo(Level):
         self.background_color = DARK_BLUE
 
 class LevelThree(Level):
-    """Second level configuration."""
+    """Third level configuration."""
     def __init__(self):
         super().__init__()
         self.platforms = [
             Platform(0, SCREEN_HEIGHT - 20, SCREEN_WIDTH, 20),  # Ground
-            Platform(450, 280, 50, 20),  # Highest platform
+            Platform(450, 150, 50, 20),  # Highest platform
             Platform(220, 340, 100, 20),  # Higher platform
             Platform(500, 420, 200, 20),  # High platform
             Platform(250, 500, 150, 20)  # Lower platform
         ]
         self.enemies = [
-            Enemy(550, 400, 30, 20, self.platforms[3]),  # On higher platform
+            FastEnemy(550, 400, 30, 20, self.platforms[3]),  # On higher platform
             Enemy(300, 480, 30, 20, self.platforms[4])  # On lower platform
         ]
         self.coins = [
-            Coin(475, 240, 20, 20),  # Above highest platform
+            Coin(475, 110, 20, 20),  # Above highest platform
             Coin(600, 380, 20, 20),  # Above high platform
             Coin(325, 460, 20, 20)  # Above lower platform
         ]
+        self.power_ups = [
+            PowerUp(270, 300, 20, 20)  # Above higher platform
+        ]
         self.initial_coins = self.coins.copy()  # Store initial coins
+        self.initial_power_ups = self.power_ups.copy()
         self.background_color = DARK_GREEN

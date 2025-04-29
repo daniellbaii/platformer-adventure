@@ -5,6 +5,7 @@ FPS = 60
 GRAVITY = 0.5
 PLAYER_JUMP_POWER = -10
 PLAYER_SPEED = 5
+POWERUP_DURATION = 3000 # 5 seconds in milliseconds
 
 # Colors
 WHITE = (255, 255, 255)
