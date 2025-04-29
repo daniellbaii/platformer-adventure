@@ -1,6 +1,6 @@
 # src/game_objects.py
 import pygame
-from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, PLAYER_JUMP_POWER, PLAYER_SPEED, BLACK, DARK_BLUE
+from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, PLAYER_JUMP_POWER, PLAYER_SPEED, BLACK, DARK_BLUE, DARK_GREEN
 
 class GameObject:
     """Base class for game objects with position and rendering."""
@@ -120,7 +120,7 @@ class LevelOne(Level):
         self.background_color = BLACK
 
 class LevelTwo(Level):
-    """Second level with different layout."""
+    """Second level configuration."""
     def __init__(self):
         super().__init__()
         self.platforms = [
@@ -138,3 +138,26 @@ class LevelTwo(Level):
         ]
         self.initial_coins = self.coins.copy()  # Store initial coins
         self.background_color = DARK_BLUE
+
+class LevelThree(Level):
+    """Second level configuration."""
+    def __init__(self):
+        super().__init__()
+        self.platforms = [
+            Platform(0, SCREEN_HEIGHT - 20, SCREEN_WIDTH, 20),  # Ground
+            Platform(450, 280, 50, 20),  # Highest platform
+            Platform(220, 340, 100, 20),  # Higher platform
+            Platform(500, 420, 200, 20),  # High platform
+            Platform(250, 500, 150, 20)  # Lower platform
+        ]
+        self.enemies = [
+            Enemy(550, 400, 30, 20, self.platforms[3]),  # On higher platform
+            Enemy(300, 480, 30, 20, self.platforms[4])  # On lower platform
+        ]
+        self.coins = [
+            Coin(475, 240, 20, 20),  # Above highest platform
+            Coin(600, 380, 20, 20),  # Above high platform
+            Coin(325, 460, 20, 20)  # Above lower platform
+        ]
+        self.initial_coins = self.coins.copy()  # Store initial coins
+        self.background_color = DARK_GREEN

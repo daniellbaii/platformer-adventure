@@ -1,7 +1,7 @@
 # src/game.py
 import pygame
-from .game_objects import Player, LevelOne, LevelTwo
-from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, RED, BLACK, DARK_BLUE
+from .game_objects import Player, LevelOne, LevelTwo, LevelThree
+from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, RED
 
 class GameManager:
     """Manages the game loop, states, and objects."""
@@ -16,11 +16,12 @@ class GameManager:
         self.clock = pygame.time.Clock()
         self.running = True
         self.state = "START"  # START, PLAYING, GAME_OVER, FINISHED
-        self.levels = [LevelOne(), LevelTwo()]
+        self.levels = [LevelOne(), LevelTwo(), LevelThree()]
         self.current_level_index = 0
         self.player = Player(100, SCREEN_HEIGHT - 60, 40, 40)  # Start on ground
         self.font = pygame.font.Font(None, 36)
         self.total_coins = sum(len(level.coins) for level in self.levels)  # Total coins
+        print(self.total_coins)
         self.level_coin_counts = [0] * len(self.levels)  # Coins collected per level
 
     def reset_level(self):
