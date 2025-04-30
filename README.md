@@ -202,3 +202,17 @@ The final version of Platformer Adventure builds on Deliverables 3 and 4, adding
 - Implement a high-score system to save best times.
 - Introduce additional power-ups (e.g., speed boost, invincibility).
 - Replace rectangles with sprite images for enhanced visuals.
+
+## Ethical and Legal Considerations
+
+### Ethical Considerations
+
+- **Accessibility**: The game uses simple arrow key controls (LEFT, RIGHT, UP) to ensure ease of use, but lacks customisable key bindings, which could limit accessibility for players with motor impairments. Future versions could include reconfigurable controls or alternative input methods (e.g., gamepad support). The color scheme (white player, yellow coins, blue power-up, red enemies, distinct backgrounds) aims to be visually clear, but may not fully accommodate colorblind players; a high-contrast or colorblind-friendly mode could be added.
+- **Player Experience**: The game is designed to be fair, with balanced difficulty across three levels and clear feedback (e.g., coin counter, timer, "Game Over" screen). It avoids frustrating mechanics like hidden traps or unfair enemy behavior. The content is non-violent and suitable for all ages, focusing on platforming challenges without offensive themes.
+- **Data Privacy**: Platformer Adventure collects no user data, ensuring player privacy. No personal information is stored or transmitted, aligning with ethical standards for user trust.
+
+### Legal Considerations
+
+- **Licensing**: The game uses Pygame, licensed under the GNU Lesser General Public License (LGPL), which permits free use and modification. The game’s code is original and not distributed under a specific license for this educational project, but could adopt an open-source license (e.g., MIT License) for public release to clarify usage rights.
+- **Asset Usage**: No external assets (images, sounds) are used; all visuals are programmatically generated rectangles, avoiding copyright or licensing issues. The `assets/` directory is reserved for future use, and any future assets would require proper licensing (e.g., Creative Commons or purchased resources).
+- **Code Originality**: No third-party code libraries beyond Pygame were incorporated. Guidance from Pygame documentation and general Python tutorials was used, but all implementations (e.g., collision detection, level design) are unique to this project.
