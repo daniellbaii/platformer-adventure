@@ -24,7 +24,7 @@ class GameManager:
         self.level_coin_counts = [0] * len(self.levels)  # Coins collected per level
         self.powerup_timer = 0  # Tracks power-up duration
         self.powerup_active = False
-        self.start_time = pygame.time.get_ticks()  # Start time for timer
+        self.start_time = 0  # Set to 0 before start
         self.final_time = 0  # Store final time when game is finished
 
     def reset_level(self):
@@ -56,6 +56,7 @@ class GameManager:
                 if self.state == "START" and event.key == pygame.K_SPACE:
                     self.reset_level()
                     self.state = "PLAYING"
+                    self.start_time = pygame.time.get_ticks()  # Start time for timer
                 elif self.state == "PLAYING" and event.key == pygame.K_r:
                     self.level_coin_counts[self.current_level_index] = 0  # Reset current level coins
                     self.player.score = sum(self.level_coin_counts)  # Update score
